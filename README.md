@@ -6,6 +6,12 @@ Color Pickers for Sketch, Photoshop, Chrome & more with Vue.js(vue2.0).
 
 ## Installation
 
+### NPM
+
+```bash
+$ npm install vue2-color-picker-gradient
+```
+
 ### ES6
 
 ```vue
