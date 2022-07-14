@@ -1,7 +1,18 @@
 {
   "name": "vue2-color-picker-gradient",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "author": "爱华 <hstcssk@gmail.com>",
+  "description": "vue2渐变选择器",
+  "keywords": [
+    "color",
+    "vuejs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://www.npmjs.com/package/vue2-color-picker-gradient"
+  },
+  "main": "dist/vue2-color-picker-gradient.umd.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
