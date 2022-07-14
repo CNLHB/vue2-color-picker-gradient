@@ -4,6 +4,17 @@
     <div class="color_poick">
       <ColorPicker
         v-model="isShowColorPicker"
+        type="linear"
+        @changeColor="changeColor"
+        @onClose="onClosePicker"
+        :pDeg="90"
+        :pColor="pColor"
+        :pColors="pColors"            
+        :showClose="true"
+        :closeOnClickBody="false"
+      />
+       <ColorPicker
+        v-model="isShowColorPicker1"
         type="gradient"
         @changeColor="changeColor"
         @onClose="onClosePicker"
@@ -29,6 +40,7 @@ export default {
   data() {
     return {
       isShowColorPicker: false,
+      isShowColorPicker1: true,
       color: {
         hex: '#000000',
         rgba: { r: 0, g: 0, b: 0, a: 1 },
@@ -68,7 +80,7 @@ export default {
   methods: {
     changeColor({ style, colors, deg, color }) {
       const obj = { type: 'color', value: color }
-      console.log(style, colors, deg)
+      console.log(style, colors, deg,color)
       console.log(obj)
       this.style = style
       // updateProps(obj)
@@ -104,6 +116,9 @@ export default {
 .select{
   height: 30px;
   width: 50px;
+}
+.color_poick{
+  display: flex;
 }
 .box_xxx {
   width: 300px;

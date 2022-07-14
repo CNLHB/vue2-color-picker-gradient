@@ -1,14 +1,14 @@
 <template>
   <div class="color_picker_wrapper" ref="refBox" v-show="value">
     <div class="color_picker_box" @mousedown.stop>
-      <div class="color_hd" v-if="type === 'gradient'">
-        <div class="title">
+      <div class="color_hd" :class="!(showClose||titleConfig.show)&&!titleConfig.text?'color_hd_0':''">
+        <div class="title" v-if="titleConfig.show!==false">
           <span :style="titleConfig.style || {}">{{ titleConfig.text }}</span>
           <span v-if="showClose" class="close_box" @click="handleClosePicker"
             >x</span
           >
         </div>
-        <div class="gcolor">
+        <div class="gcolor"  v-if="type === 'gradient'">
           <div class="gcolor_deg" v-if="!disabledColorDeg">
             <div class="gcolor_deg_span">角度</div>
             <Slider v-model="deg" :min="0" :max="360" :show-tooltip="false" />
@@ -154,6 +154,7 @@ export default {
       type: Object,
       default() {
         return {
+          show: true,
           text: '颜色选择器',
           style: {},
         }
@@ -297,7 +298,6 @@ export default {
       const barBounding = this.$refs.refColorBar.getBoundingClientRect()
       const barLeft = barBounding.left
       const colorPotDist = e.pageX - barLeft
-      console.log(cloneDeep(this.colors))
       // 渐变条stopColors
       const rangColors = cloneDeep(this.colors)
         .sort((a, b) => a.pst - b.pst)
@@ -351,10 +351,8 @@ export default {
       return `calc(${pst}% - 8px)`
     },
     changeColor(color) {
-      console.log('color', color)
       const rgba = color.rgba
       const hex = color.hex
-
       if (this.type === 'linear') {
         const colorValue = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`
         this.color = {
@@ -429,7 +427,6 @@ export default {
     },
     pColors: {
       handler(pColors) {
-        console.log('pColors', pColors)
         if (this.selectIndex >= pColors.length) {
           this.selectIndex = pColors.length - 1
         }
@@ -550,12 +547,18 @@ export default {
     }
 
     .color_hd {
+      margin-bottom: 15px;
     }
 
+    .color_hd_0{
+      margin-bottom: 0;
+    }
     .title {
       font-size: 16px;
       display: flex;
       justify-content: space-between;
+      padding-left: 4px;
+      color: #606266;
       .close_box {
         speak: none;
         font-style: normal;
@@ -566,7 +569,7 @@ export default {
         vertical-align: baseline;
         display: inline-block;
         color: #909399;
-        width: 26px;
+        width: 20px;
         height: 100%;
         font-size: 21px;
         cursor: pointer;
