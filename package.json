@@ -1,6 +1,6 @@
 {
   "name": "vue2-color-picker-gradient",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": false,
   "author": "爱华 <hstcssk@gmail.com>",
   "description": "vue2渐变选择器",
@@ -24,8 +24,7 @@
     "core-js": "^3.6.5",
     "element-ui": "^2.15.9",
     "vue": "^2.6.11",
-    "vue-color": "^2.8.1",
-    "vue-color-kit": "^1.0.5"
+    "vue-color": "^2.8.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.13",
