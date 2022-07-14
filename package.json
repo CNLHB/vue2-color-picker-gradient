@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "element-ui": "^2.15.9",
     "vue": "^2.6.11",
+    "vue-color": "^2.8.1",
     "vue-color-kit": "^1.0.5"
   },
   "devDependencies": {
