@@ -1,6 +1,6 @@
 {
   "name": "vue2-color-picker-gradient",
-  "version": "0.5.0",
+  "version": "0.8.0",
   "private": false,
   "author": "爱华 <hstcssk@gmail.com>",
   "description": "vue2,颜色选择器,线性（纯色）、渐变选择器,支持角度、多点渐变",
@@ -13,11 +13,12 @@
     "渐变",
     "多点",
     "颜色",
-    "选择器"
+    "渐变选择器",
+    "gradientSelector"
   ],
   "repository": {
     "type": "git",
-    "url": "https://www.npmjs.com/package/vue2-color-picker-gradient"
+    "url": "https://github.com/CNLHB/vue2-color-picker-gradient"
   },
   "main": "dist/vue2-color-picker-gradient.umd.min.js",
   "scripts": {

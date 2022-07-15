@@ -1,7 +1,8 @@
 # vue2-color-picker-gradient
 [![npm](https://img.shields.io/npm/v/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
 [![npm](https://img.shields.io/npm/dt/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
-[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)  
+
 Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
 
 ## [Live demo]()
@@ -47,7 +48,7 @@ export default {
 | pColor     | object  | {hex: '#000000',rgba: { r: 0, g: 0, b: 0, a: 1 },color: 'rgba(0,0,0,1)'}      | The position vertically from a previous node.          |
 | pColors      | Array   | [pColor,pColor]      | data                                                   |
 | showClose | boolean  | true | true or false |
-| closeOnClickBody | boolean | false   | whether show arrow for each line.                      |
+| closeOnClickBody | boolean | false   | click on body close picker                     |
 | titleConfig | object | {text:"颜色选择器",show: true}   |                      |
 
 
@@ -210,6 +211,7 @@ yarn lib
 yarn lint
 ```
 
+欢迎点个star🎉🎉🎉
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
