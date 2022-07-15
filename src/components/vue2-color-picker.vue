@@ -208,6 +208,7 @@ export default {
   },
   mounted() {
     this.initColors()
+    this.value && this.bindEvents()
   },
   methods: {
     initColors() {
