@@ -1,7 +1,8 @@
 # vue2-color-picker-gradient
+
 [![npm](https://img.shields.io/npm/v/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
 [![npm](https://img.shields.io/npm/dt/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
-[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)  
+[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)
 
 Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
 
@@ -23,7 +24,9 @@ import ColorPickerGradient from 'vue2-color-picker-gradient'
 Vue.use(ColorPickerGradient)
 
 ```
+
 or
+
 ```
 
 import ColorPicker from 'vue2-color-picker-gradient'
@@ -40,18 +43,18 @@ export default {
 
 ### Props of ColorPicker
 
-| Name      | Type    | Default | Description                                            |
-| --------- | ------- | ------- | ------------------------------------------------------ |
-| type         | string  | linear      | The type is color    |
-| disabledColorDeg         | boolean  | false      | The y coordinate of the starting point of the graph    |
-| pDeg     | number  | 90     | The position horizontally from a previous node.        |
-| pColor     | object  | {hex: '#000000',rgba: { r: 0, g: 0, b: 0, a: 1 },color: 'rgba(0,0,0,1)'}      | The position vertically from a previous node.          |
-| pColors      | Array   | [pColor,pColor]      | data                                                   |
-| showClose | boolean  | true | true or false |
-| closeOnClickBody | boolean | false   | click on body close picker                     |
-| titleConfig | object | {text:"颜色选择器",show: true}   |                      |
-
-
+| Name             | Type    | Default                                                                  | Description                                         |
+| ---------------- | ------- | ------------------------------------------------------------------------ | --------------------------------------------------- |
+| type             | string  | linear                                                                   | The type is color                                   |
+| disabledColorDeg | boolean | false                                                                    | The y coordinate of the starting point of the graph |
+| pDeg             | number  | 90                                                                       | The position horizontally from a previous node.     |
+| pColor           | object  | {hex: '#000000',rgba: { r: 0, g: 0, b: 0, a: 1 },color: 'rgba(0,0,0,1)'} | The position vertically from a previous node.       |
+| pColors          | Array   | [pColor,pColor]                                                          | data                                                |
+| showClose        | boolean | true                                                                     | true or false                                       |
+| closeOnClickBody | boolean | false                                                                    | click on body close picker                          |
+| titleConfig      | object  | {text:"颜色选择器",show: true}                                           |                                                     |
+|                  |         |                                                                          |                                                     |
+### example
 
 ```vue
 <template>
@@ -187,10 +190,6 @@ export default {
 
 ```
 
-
-
-
-
 ## Local setup
 
 ### Compiles and hot-reloads for development
@@ -212,6 +211,7 @@ yarn lint
 ```
 
 欢迎点个star🎉🎉🎉
+
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).

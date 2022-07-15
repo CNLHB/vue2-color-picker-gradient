@@ -1,6 +1,6 @@
 {
   "name": "vue2-color-picker-gradient",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": false,
   "author": "爱华 <hstcssk@gmail.com>",
   "description": "vue2,颜色选择器,线性（纯色）、渐变选择器,支持角度、多点渐变",
