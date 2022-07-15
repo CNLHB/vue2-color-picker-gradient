@@ -56,6 +56,12 @@ export default {
 | closeOnClickBody | boolean | false                                                                    | click on body close picker                          |
 | titleConfig      | object  | {text:"颜色选择器",show: true}                                           |                                                     |
 |                  |         |                                                                          |                                                     |
+## Events
+
+| Name   | Params | Description                 |
+| ------ | ------ | --------------------------- |
+| @changeColor |{ style, colors, deg, color }    | color chang callback |
+| @onClose |    | picker hide callback |
 
 ### example
 
