@@ -6,6 +6,8 @@
 
 Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
 
+![1657866263017](image/README/1657866263017.png)
+
 ## [Live demo]()
 
 ## Installation
@@ -54,6 +56,7 @@ export default {
 | closeOnClickBody | boolean | false                                                                    | click on body close picker                          |
 | titleConfig      | object  | {text:"颜色选择器",show: true}                                           |                                                     |
 |                  |         |                                                                          |                                                     |
+
 ### example
 
 ```vue

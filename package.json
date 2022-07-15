@@ -23,7 +23,7 @@
   "main": "dist/vue2-color-picker-gradient.umd.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --dest build",
     "lint": "vue-cli-service lint",
     "lib": "vue-cli-service build --target lib ./src/index.js"
   },
