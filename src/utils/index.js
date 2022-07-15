@@ -17,3 +17,7 @@ export function cloneDeep(target) {
   }
   return result;
 }
+export function keepDecimal (numStr, num = 2) {
+  const reg = new RegExp(`^\\d+(?:\\.\\d{0,${num}})?`, 'g')
+  return !numStr.match(reg) ? '' : numStr.match(reg)
+}

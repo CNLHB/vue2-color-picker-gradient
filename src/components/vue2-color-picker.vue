@@ -18,7 +18,7 @@
           <div class="gcolor_bar" ref="refColorBar">
             <div
               class="gcolor_bar_bg"
-              :style="barStyle"
+              :style="`background:${barStyle}`"
               @click="handlePotBar"
             ></div>
             <div class="gcolor_bar_pot_box">
@@ -41,13 +41,6 @@
       </div>
       <div class="gradient_box" v-if="type === 'gradient'">
         <template v-for="(item, index) in colors">
-          <!-- <SketchColorPicker
-            theme="light"
-            :color="item.color"
-            :sucker-hide="true"
-            @changeColor="changeColor"
-            v-if="index === selectIndex"
-          /> -->
           <SketchColorPicker
             :key="`${item.pst}_${index}`"
             v-if="index === selectIndex"
@@ -73,7 +66,7 @@
 
 <script>
 import ColorScale from 'color-scales'
-import { cloneDeep } from '../utils/index'
+import { cloneDeep ,keepDecimal} from '../utils/index'
 import Slider from 'element-ui/lib/slider'
 import { Sketch } from 'vue-color'
 import 'element-ui/lib/theme-chalk/slider.css'
@@ -187,11 +180,12 @@ export default {
     }
   },
   created() {
-    this.color = this.pColor
     this.deg = this.pDeg
     this.colors = this.pColors
     if(typeof this.pColor === 'string'){
-      this.warn("The pColors default length cannot be less than 2")
+      this.pColor.indexOf("#")!==-1?(this.color.hex = this.pColor):(this.color.color = this.pColor)
+    }else{
+      this.color = this.pColor
     }
     if(this.pColors.length<2){
       this.warn("The pColors default length cannot be less than 2")
@@ -205,10 +199,9 @@ export default {
       const colors = cloneDeep(this.colors)
         .sort((a, b) => a.pst - b.pst)
         .map((item) => {
-          return `${item.color} ${item.pst}%`
+          return `${item.color} ${keepDecimal(String(item.pst)||'',5)}%`
         })
-
-      return `background-image: linear-gradient(${this.deg}deg, ${colors.join(
+      return `linear-gradient(${this.deg}deg, ${colors.join(
         ','
       )});`
     },

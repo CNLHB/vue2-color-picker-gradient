@@ -1,6 +1,8 @@
 # vue2-color-picker-gradient
-
-Color Pickers for Sketch, Photoshop, Chrome & more with Vue.js(vue2.0).
+[![npm](https://img.shields.io/npm/v/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
+[![npm](https://img.shields.io/npm/dt/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
+[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)
+Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
 
 ## [Live demo]()
 
@@ -14,6 +16,42 @@ $ npm install vue2-color-picker-gradient
 
 ### ES6
 
+```
+import Vue from 'vue'
+import ColorPickerGradient from 'vue2-color-picker-gradient'
+Vue.use(ColorPickerGradient)
+
+```
+or
+```
+
+import ColorPicker from 'vue2-color-picker-gradient'
+export default {
+  name: 'App',
+  components: {
+    ColorPicker,
+  },
+}
+
+```
+
+## Props
+
+### Props of ColorPicker
+
+| Name      | Type    | Default | Description                                            |
+| --------- | ------- | ------- | ------------------------------------------------------ |
+| type         | string  | linear      | The type is color    |
+| disabledColorDeg         | boolean  | false      | The y coordinate of the starting point of the graph    |
+| pDeg     | number  | 90     | The position horizontally from a previous node.        |
+| pColor     | object  | {hex: '#000000',rgba: { r: 0, g: 0, b: 0, a: 1 },color: 'rgba(0,0,0,1)'}      | The position vertically from a previous node.          |
+| pColors      | Array   | [pColor,pColor]      | data                                                   |
+| showClose | boolean  | true | true or false |
+| closeOnClickBody | boolean | false   | whether show arrow for each line.                      |
+| titleConfig | object | {text:"颜色选择器",show: true}   |                      |
+
+
+
 ```vue
 <template>
   <div id="app">
@@ -26,29 +64,31 @@ $ npm install vue2-color-picker-gradient
         @onClose="onClosePicker"
         :pDeg="90"
         :pColor="pColor"
-        :pColors="pColors"            
+        :pColors="pColors"
         :showClose="true"
         :closeOnClickBody="false"
       />
-       <ColorPicker
+      <ColorPicker
         v-model="isShowColorPicker1"
         type="gradient"
-        @changeColor="changeColor"
-        @onClose="onClosePicker"
+        @changeColor="changeColor1"
+        @onClose="onClosePicker1"
         :pDeg="90"
         :pColor="pColor"
-        :pColors="pColors"            
+        :pColors="pColors"
         :showClose="true"
         :closeOnClickBody="false"
       />
     </div>
-    <div class="box_xxx" :style="style"></div>
+    <div style="display: flex;">
+      <div class="box_xxx" :style="style"></div>
+      <div class="box_xxx box1" :style="style1"></div>
+    </div>
   </div>
 </template>
 
 <script>
-  
-import ColorPicker from 'vue2-color-picker-gradient'
+import ColorPicker from './components/vue2-color-picker.vue'
 
 export default {
   name: 'App',
@@ -57,61 +97,90 @@ export default {
   },
   data() {
     return {
-      isShowColorPicker: false,
+      isShowColorPicker: true,
       isShowColorPicker1: true,
-      color: {
-        hex: '#000000',
-        rgba: { r: 0, g: 0, b: 0, a: 1 },
-        color: 'rgba(0,0,0,1)',
-      },
       style: '',
-      titleConfig:{
-
+      style1: '',
+      titleConfig: {
+        show: true,//控制顶部文字 关闭按钮 显隐
+        text:'颜色选择器'//顶部文字
       },
       pDeg: 60,
-      pColor:{
-          hex: '#194d33',
-          hex8: '#194d33',
-          hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
-          hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
-          rgba: { r: 25, g: 77, b: 51, a: 1 },
-          a: 1,
-          color: 'rgba(0,0,0,1)',
+      pColor: {
+        hex: '#194d33',
+        hex8: '#194d33',
+        hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
+        hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
+        rgba: { r: 25, g: 77, b: 51, a: 1 },
+        a: 1,
+        color: 'rgba(0,0,0,1)',
       },
-      pColors:[
-                  {
-            color: 'rgba(255, 255, 255, 1)',
-            hex: '#ffffff',
-            rgba: { r: 255, g: 255, b: 255, a: 1 },
-            pst: 100,
-          },
-          {
-            color: 'rgba(0, 0, 0, 1)',
-            hex: '#000000',
-            rgba: { r: 0, g: 0, b: 0, a: 1 },
-            pst: 0,
-          },
+      pColors: [
+        {
+          color: 'rgba(255, 255, 255, 1)',
+          hex: '#ffffff',
+          rgba: { r: 255, g: 255, b: 255, a: 1 },
+          pst: 100,
+        },
+        {
+          color: 'rgba(0, 0, 0, 1)',
+          hex: '#000000',
+          rgba: { r: 0, g: 0, b: 0, a: 1 },
+          pst: 0,
+        },
       ],
-
     }
   },
   methods: {
     changeColor({ style, colors, deg, color }) {
-      const obj = { type: 'color', value: color }
-      console.log(style, colors, deg,color)
-      console.log(obj)
-      this.style = style
+      console.log(style, colors, deg, color)
+      this.style = `background: ${color.color}`
     },
-    showPicker(){
-        this.isShowColorPicker=true
+    showPicker() {
+      this.isShowColorPicker = true
+      this.isShowColorPicker1 = true
     },
-    onClosePicker() {
-     
+    onClosePicker() {},
+    changeColor1({ style, colors, deg, color }) {
+      console.log(style, colors, deg, color)
+      this.style1 = `background: ${style}`
     },
+    showPicker1() {
+      this.isShowColorPicker1 = true
+    },
+    onClosePicker1() {},
   },
-
+  watch: {},
 }
 </script>
+
+<style lang="scss">
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+.select {
+  height: 30px;
+  width: 50px;
+}
+.color_poick {
+  display: flex;
+  justify-content: space-between;
+  width: 590px;
+}
+.box_xxx {
+  width: 300px;
+  height: 300px;
+}
+.box1{
+  margin-left: 50px;
+}
+</style>
+
 
 
 
@@ -129,7 +198,7 @@ export default {
 yarn serve
 ```
 
-### Compiles and minifies for production
+### Compiles and minifies for lib
 
 ```
 yarn lib
