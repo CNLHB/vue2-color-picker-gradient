@@ -8,7 +8,7 @@ Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
 
 ![1657866263017](image/README/1657866263017.png)
 
-## [Live demo]()
+## [Live demo](https://cnlhb.github.io/vue2-color-picker-gradient/build/index.html)
 
 ## Installation
 
