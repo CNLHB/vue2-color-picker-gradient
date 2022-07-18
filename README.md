@@ -2,8 +2,8 @@
 
 [![npm](https://img.shields.io/npm/v/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
 [![npm](https://img.shields.io/npm/dt/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
-[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)
-Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
+[![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)  
+Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).  
 欢迎点个star🎉🎉🎉  
 
 ![1657866263017](image/README/1657866263017.png)
