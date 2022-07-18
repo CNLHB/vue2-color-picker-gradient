@@ -3,8 +3,8 @@
 [![npm](https://img.shields.io/npm/v/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
 [![npm](https://img.shields.io/npm/dt/vue2-color-picker-gradient.svg)](https://www.npmjs.com/package/vue2-color-picker-gradient)
 [![GitHub stars](https://img.shields.io/github/stars/CNLHB/vue2-color-picker-gradient.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/CNLHB/vue2-color-picker-gradient/stargazers)
-
 Color Pickers for  ColorPickerGradient, Chrome & more with Vue.js(vue2.x).
+欢迎点个star🎉🎉🎉  
 
 ![1657866263017](image/README/1657866263017.png)
 
@@ -45,17 +45,17 @@ export default {
 
 ### Props of ColorPicker
 
-| Name             | Type    | Default                                                                  | Description                                         |
-| ---------------- | ------- | ------------------------------------------------------------------------ | --------------------------------------------------- |
-| type             | string  | linear                                                                   | The type is color                                   |
-| disabledColorDeg | boolean | false                                                                    | The y coordinate of the starting point of the graph |
-| pDeg             | number  | 90                                                                       | The position horizontally from a previous node.     |
-| pColor           | object  | {hex: '#000000',rgba: { r: 0, g: 0, b: 0, a: 1 },color: 'rgba(0,0,0,1)'} | The position vertically from a previous node.       |
-| pColors          | Array   | [pColor,pColor]                                                          | data                                                |
-| showClose        | boolean | true                                                                     | true or false                                       |
-| closeOnClickBody | boolean | false                                                                    | click on body close picker                          |
-| titleConfig      | object  | {text:"颜色选择器",show: true}                                           |                                                     |
-|                  |         |                                                                          |                                                     |
+| Name             | Type    | Default                                                                  | Description                  |
+| ---------------- | ------- | ------------------------------------------------------------------------ | ---------------------------- |
+| type             | string  | linear or gradient                                                       | Color selector type          |
+| disabledColorDeg | boolean | false                                                                    | Disable angle                |
+| pDeg             | number  | 90                                                                       | Default angle                |
+| pColor           | object  | {hex: '#000000',rgba: { r: 0, g: 0, b: 0, a: 1 },color: 'rgba(0,0,0,1)'} | Default color                |
+| pColors          | Array   | [{...pColor,pst:0},{...pColor,pst:100}]                                  | Gradient Default color Array |
+| showClose        | boolean | true                                                                     | true or false                |
+| closeOnClickBody | boolean | false                                                                    | click on body close picker   |
+| titleConfig      | object  | {text:"颜色选择器",show: true}                                           |                              |
+|                  |         |                                                                          |                              |
 ## Events
 
 | Name   | Params | Description                 |
@@ -219,7 +219,7 @@ yarn lib
 yarn lint
 ```
 
-欢迎点个star🎉🎉🎉
+
 
 ### Customize configuration
 
