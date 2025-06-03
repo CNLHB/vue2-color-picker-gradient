@@ -3,7 +3,22 @@
   "version": "0.15.0",
   "private": false,
   "author": "爱华 <hstcssk@gmail.com>",
-  "description": "vue2,颜色选择器,线性（纯色）、渐变选择器,支持角度、多点渐变",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:demo": "cross-env CUSTOM_NODE_ENV=demo vite build --outDir demo",
+    "preview": "vite preview",
+    "lint": "eslint src/ --ext .js,.ts,.vue",
+    "lint:fix": "eslint . --ext .js,.ts,.vue --fix",
+    "format": "prettier --write src/",
+    "": "prettier --write src/",
+    "prepare": "husky install",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "cz": "git-cz",
+    "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
+  },
   "keywords": [
     "color",
     "vuejs",
@@ -16,33 +31,59 @@
     "渐变选择器",
     "gradientSelector"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CNLHB/vue2-color-picker-gradient"
+  "description": "vue2,颜色选择器,线性（纯色）、渐变选择器,支持角度、多点渐变",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/style.css"
   },
-  "main": "dist/vue2-color-picker-gradient.umd.min.js",
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --dest build",
-    "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib ./src/index.js"
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@rushstack/eslint-patch": "1.3.3",
+    "@vitejs/plugin-vue2": "^2.3.3",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "commitizen": "^4.3.1",
+    "conventional-changelog": "^7.0.2",
+    "conventional-changelog-cli": "^5.0.0",
+    "cross-env": "^7.0.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-vue": "9.17.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.5.3",
+    "sass": "^1.89.1",
+    "sass-loader": "^16.0.5",
+    "vite": "^6.3.5",
+    "vite-plugin-eslint": "^1.8.1",
+    "vitest": "^3.1.4",
+    "vue-template-compiler": "^2.7.16"
   },
   "dependencies": {
     "color-scales": "^3.0.2",
     "core-js": "^3.6.5",
     "element-ui": "^2.15.9",
-    "vue": "^2.6.11",
+    "vue": "2.7.16",
     "vue-color": "^2.8.1"
   },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.13",
-    "@vue/cli-plugin-eslint": "~4.5.13",
-    "@vue/cli-service": "~4.5.13",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "node-sass": "^4.12.0",
-    "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11"
+  "lint-staged": {
+    "src/**/*.{js,vue}": [
+      "prettier --write",
+      "eslint"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
