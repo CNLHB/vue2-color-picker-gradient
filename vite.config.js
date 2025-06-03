@@ -3,7 +3,17 @@ import vue from '@vitejs/plugin-vue2';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import eslintPlugin from 'vite-plugin-eslint';
+import legacy from '@vitejs/plugin-legacy';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const plugins = [
+  vue(),
+  eslintPlugin({
+    failOnError: false, //报错不影响编译
+    failOnWarning: false, // 警告不影响编译
+    include: ['src/**/*.js', 'src/**/*.vue']
+  })
+];
 let libConfig = {
   build: {
     lib: {
@@ -30,17 +40,11 @@ if (process.env.CUSTOM_NODE_ENV === 'demo') {
   libConfig = {
     build: {}
   };
+  plugins.push(legacy({}));
 }
 export default defineConfig({
-  base: '/vue2-vite-demo',
-  plugins: [
-    vue(),
-    eslintPlugin({
-      failOnError: false, //报错不影响编译
-      failOnWarning: false, // 警告不影响编译
-      include: ['src/**/*.js', 'src/**/*.vue']
-    })
-  ],
+  base: '/vue2-color-picker-gradient',
+  plugins: [...plugins],
   build: {
     ...libConfig.build
   },
