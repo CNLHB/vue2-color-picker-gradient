@@ -1,29 +1,32 @@
 <template>
   <div id="app">
-    <div class="select" @click="showPicker">展示选择器</div>
     <div class="color_poick">
-      <ColorPicker
-        v-model="isShowColorPicker"
-        type="linear"
-        :p-deg="90"
-        :p-color="pColor"
-        :p-colors="pColors"
-        :show-close="true"
-        :close-on-click-body="false"
-        @changeColor="changeColor"
-        @onClose="onClosePicker"
-      />
-      <ColorPicker
-        v-model="isShowColorPicker1"
-        type="gradient"
-        :p-deg="90"
-        :p-color="pColor"
-        :p-colors="pColors"
-        :show-close="true"
-        :close-on-click-body="false"
-        @changeColor="changeColor1"
-        @onClose="onClosePicker1"
-      />
+      <div class="select">
+        linear
+        <ColorPicker
+          type="linear"
+          :p-deg="90"
+          :p-color="pColor"
+          :p-colors="pColors"
+          :show-close="true"
+          :close-on-click-body="false"
+          @changeColor="changeColor"
+          @onClose="onClosePicker"
+        />
+      </div>
+      <div>
+        gradient
+        <ColorPicker
+          type="gradient"
+          :p-deg="90"
+          :p-color="pColor"
+          :p-colors="pColors"
+          :show-close="true"
+          :close-on-click-body="false"
+          @changeColor="changeColor1"
+          @onClose="onClosePicker1"
+        />
+      </div>
     </div>
     <div style="display: flex">
       <div class="box_xxx" :style="style"></div>
@@ -42,8 +45,6 @@ export default {
   },
   data() {
     return {
-      isShowColorPicker: true,
-      isShowColorPicker1: true,
       style: '',
       style1: '',
       titleConfig: {
@@ -82,17 +83,10 @@ export default {
       console.log(style, colors, deg, color);
       this.style = `background: ${color.color}`;
     },
-    showPicker() {
-      this.isShowColorPicker = true;
-      this.isShowColorPicker1 = true;
-    },
     onClosePicker() {},
     changeColor1({ style, colors, deg, color }) {
       console.log(style, colors, deg, color);
       this.style1 = `background: ${style}`;
-    },
-    showPicker1() {
-      this.isShowColorPicker1 = true;
     },
     onClosePicker1() {}
   }
@@ -110,7 +104,6 @@ export default {
   margin: 60px 50px;
 }
 .select {
-  height: 30px;
   width: 150px;
   text-align: left;
 }

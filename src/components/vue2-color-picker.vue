@@ -1,65 +1,98 @@
 <template>
-  <div v-show="value" ref="refBox" class="color_picker_wrapper">
-    <div class="color_picker_box" @mousedown.stop>
-      <div
-        class="color_hd"
-        :class="!(showClose || titleConfig.show) && !titleConfig.text ? 'color_hd_0' : ''"
-      >
-        <div v-if="titleConfig.show !== false" class="title">
-          <span :style="titleConfig.style || {}">{{ titleConfig.text }}</span>
-          <span v-if="showClose" class="close_box" @click="handleClosePicker">x</span>
-        </div>
-        <div v-if="type === 'gradient'" class="gcolor">
-          <div v-if="!disabledColorDeg" class="gcolor_deg">
-            <div class="gcolor_deg_span">角度</div>
-            <Slider v-model="deg" :min="0" :max="360" :show-tooltip="false" />
-            <input v-model="deg" class="number_input" />
-          </div>
+  <div class="color_box">
+    <div class="el-color-picker">
+      <!---->
+      <div class="el-color-picker__trigger" id="colorBox" @click="handleClickPicker">
+        <span class="el-color-picker__color"
+          ><span class="el-color-picker__color-inner" :style="selectColor"> &times; </span></span
+        ><span class="el-color-picker__icon el-icon-arrow-down"></span>
+      </div>
+    </div>
+    <div v-show="showSelectColor" id="colorPickerBox" ref="refBox" class="color_picker_wrapper">
+      <div class="color_picker_box" @mousedown.stop>
+        <div
+          class="color_hd"
+          :class="!(showClose || titleConfig.show) && !titleConfig.text ? 'color_hd_0' : ''"
+        >
+          <div v-if="type === gradType" class="gcolor">
+            <div v-if="titleConfig.show !== false" class="title">
+              <span :style="titleConfig.style || {}">{{ titleConfig.text }}</span>
+              <span v-if="showClose" class="close_box" @click="handleClosePicker">x</span>
+            </div>
+            <div v-if="!disabledColorDeg" class="gcolor_deg">
+              <div class="gcolor_deg_span">角度</div>
+              <Slider v-model="deg" :min="0" :max="360" :show-tooltip="false" />
+              <input v-model="deg" class="number_input" />
+            </div>
 
-          <div ref="refColorBar" class="gcolor_bar">
-            <div
-              class="gcolor_bar_bg"
-              :style="`background:${barStyle}`"
-              @click="handlePotBar"
-            ></div>
-            <div class="gcolor_bar_pot_box">
+            <div ref="refColorBar" class="gcolor_bar">
               <div
-                v-for="(item, index) in colors"
-                :key="`${item.pst}_${index}`"
-                class="gcolor_bar_pot"
-                :style="{
-                  left: getBarPst(item.pst)
-                }"
-                :class="{
-                  on: selectIndex === index
-                }"
-                @mousedown="sliderPotDown(index, $event)"
-                @click="clickGColorPot(index)"
+                class="gcolor_bar_bg"
+                :style="`background:${barStyle}`"
+                @click="handlePotBar"
               ></div>
+              <div class="gcolor_bar_pot_box">
+                <div
+                  v-for="(item, index) in colors"
+                  :key="`${item.pst}_${index}`"
+                  class="gcolor_bar_pot"
+                  :style="{
+                    left: getBarPst(item.pst)
+                  }"
+                  :class="{
+                    on: selectIndex === index
+                  }"
+                  @mousedown="sliderPotDown(index, $event)"
+                  @click="clickGColorPot(index)"
+                ></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div v-if="type === 'gradient'" class="gradient_box">
-        <template v-for="(item, index) in colors">
+        <div v-if="type === gradType" class="gradient_box">
+          <template v-for="(item, index) in colors">
+            <SketchColorPicker
+              v-if="index === selectIndex"
+              :key="`${item.pst}_${index}`"
+              theme="light"
+              :value="item.color"
+              :sucker-hide="true"
+              @input="changeColor"
+            />
+          </template>
+        </div>
+
+        <div v-else class="linear">
           <SketchColorPicker
-            v-if="index === selectIndex"
-            :key="`${item.pst}_${index}`"
             theme="light"
-            :value="item.color"
+            :value="color.color"
             :sucker-hide="true"
             @input="changeColor"
           />
-        </template>
-      </div>
-
-      <div v-else class="linear">
-        <SketchColorPicker
-          theme="light"
-          :value="color.color"
-          :sucker-hide="true"
-          @input="changeColor"
-        />
+          <div class="el-color-dropdown__btns">
+            <span class="el-color-dropdown__value"
+              ><div class="el-input el-input--mini">
+                <input
+                  v-model="color.hex"
+                  type="text"
+                  autocomplete="off"
+                  class="el-input__inner"
+                /></div></span
+            ><button
+              type="button"
+              class="el-button el-color-dropdown__link-btn el-button--text el-button--mini"
+              @click="handleClearColor"
+            >
+              <span> 清空 </span></button
+            ><button
+              type="button"
+              class="el-button el-color-dropdown__btn el-button--default el-button--mini is-plain"
+              @click="handleClosePicker"
+            >
+              <span> 确定 </span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -67,7 +100,7 @@
 
 <script>
 import ColorScale from 'color-scales';
-import { cloneDeep, keepDecimal } from '../utils/index';
+import { cloneDeep, findParentElement, keepDecimal } from '../utils/index';
 import Slider from 'element-ui/lib/slider';
 import { Sketch } from 'vue-color';
 import 'element-ui/lib/theme-chalk/slider.css';
@@ -149,7 +182,7 @@ export default {
       default() {
         return {
           show: true,
-          text: '颜色选择器',
+          text: '渐变选择器',
           style: {}
         };
       }
@@ -170,14 +203,15 @@ export default {
       colors: [],
       selectIndex: 0,
       startMovePst: 0,
-      //
       mouseStartPst: { x: 0, y: 0 },
       movePst: {
         x: 0,
         y: 0
       },
       pageX: 0,
-      pageY: 0
+      pageY: 0,
+      gradType: 'gradient',
+      showSelectColor: false
     };
   },
   computed: {
@@ -191,6 +225,13 @@ export default {
           return `${item.color} ${keepDecimal(String(item.pst) || '', 5)}%`;
         });
       return `linear-gradient(${this.deg}deg, ${colors.join(',')});`;
+    },
+    selectColor() {
+      if (this.type === 'linear') {
+        return `color: #FFF; background-color:${this.color.color};`;
+      } else {
+        return `background:${this.barStyle}`;
+      }
     }
   },
   watch: {
@@ -267,10 +308,9 @@ export default {
   methods: {
     initColors() {
       // 初始化颜色值
-      if (this.type === 'gradient') {
+      if (this.type === this.gradType) {
         const renderList = cloneDeep(this.colors).sort((a, b) => a.pst - b.pst);
         this.selectIndex = this.colors.findIndex((item) => item.pst === renderList[0].pst);
-
         this.$nextTick(() => {
           this.emitColorChange({
             style: this.barStyle
@@ -283,7 +323,7 @@ export default {
       }
     },
     bindEvents() {
-      this.type === 'gradient' && window.addEventListener('keyup', this.handleKeyup);
+      this.type === this.gradType && window.addEventListener('keyup', this.handleKeyup);
       if (this.closeOnClickBody) {
         window.addEventListener('mousedown', this.handleClosePicker);
       }
@@ -293,7 +333,7 @@ export default {
       doc.addEventListener('mouseup', this.handleEleMouseUp, useCapture);
     },
     unbindEvents() {
-      this.type === 'gradient' && window.removeEventListener('keyup', this.handleKeyup);
+      this.type === this.gradType && window.removeEventListener('keyup', this.handleKeyup);
       this.unbindEventsDoc();
       this.closeOnClickBody && window.removeEventListener('mousedown', this.handleClosePicker);
     },
@@ -321,10 +361,32 @@ export default {
       this.unbindEventsDoc();
     },
     handleClosePicker() {
+      this.showSelectColor = false;
       this.$emit('input', false);
       this.$emit('onClose');
+      this.removeEventListener();
+      this.unbindEvents();
+      this.unbindEventsDoc();
+    },
+    handleClearColor() {
+      this.handleClosePicker();
+      this.changeColor({
+        colors: [],
+        style: {},
+        deg: 0,
+        color: '',
+        rgba: {
+          r: 0,
+          g: 0,
+          b: 0,
+          a: 1
+        },
+        hex: ''
+      });
     },
     handleKeyup(e) {
+      console.log('keyup');
+
       if ([8, 46].includes(e.keyCode)) {
         this.deleteColorPot();
       }
@@ -436,19 +498,56 @@ export default {
       this.$nextTick(() => {
         console.error(msg);
       });
-    }
+    },
+    handleClickPicker() {
+      this.showSelectColor = !this.showSelectColor;
+      if (this.showSelectColor) {
+        setTimeout(() => {
+          this.addEventListener();
+          this.bindEvents();
+        }, 0);
+      } else {
+        this.removeEventListener();
+      }
+    },
+    handleEvent(event) {
+      // 获取触发点击事件的目标元素
+      let targetElement = event.target;
+      // 定义要匹配的选择器
+      const targetSelector = '#colorBox';
+      const targetpickerSelector = '#colorPickerBox';
+      // 调用函数查找符合条件的父元素
+      const colorBoxElement = findParentElement(targetElement, targetSelector);
+      const boxPickerElement = findParentElement(targetElement, targetpickerSelector);
+      if (colorBoxElement || !boxPickerElement) {
+        return this.handleClosePicker();
+      }
+    },
+    addEventListener() {
+      window.addEventListener('click', this.handleEvent);
+    },
+    removeEventListener() {
+      window.removeEventListener('click', this.handleEvent);
+    },
+    findEle() {}
   }
 };
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+.color_box {
+  position: relative;
+}
 .color_picker_wrapper {
+  position: absolute;
+  top: 100%;
   width: 240px;
   .color_picker_box {
     box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.16);
     border-radius: 4px;
     background: #f7f8f9;
     padding: 15px 10px;
+    padding-top: 10px;
     :deep() {
       .hu-color-picker {
         box-shadow: none;
@@ -547,7 +646,6 @@ export default {
       padding-left: 4px;
       color: #606266;
       .close_box {
-        speak: none;
         font-style: normal;
         font-weight: 400;
         font-variant: normal;
@@ -629,5 +727,118 @@ export default {
       }
     }
   }
+}
+.el-color-picker {
+  display: inline-block;
+  position: relative;
+  line-height: normal;
+  height: 40px;
+}
+.el-color-picker__trigger {
+  display: inline-block;
+  box-sizing: border-box;
+  height: 40px;
+  width: 40px;
+  padding: 4px;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  font-size: 0;
+  position: relative;
+  cursor: pointer;
+}
+.el-color-picker__color {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid #999;
+  border-radius: 2px;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+.el-color-picker__color-inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+// bottom
+.el-color-dropdown__btns {
+  margin-top: 6px;
+  text-align: right;
+}
+.el-color-dropdown__value {
+  float: left;
+  line-height: 26px;
+  font-size: 12px;
+  color: #000;
+  width: 120px;
+}
+.el-input {
+  position: relative;
+  font-size: 14px;
+  display: inline-block;
+  width: 100%;
+}
+.el-input--mini {
+  font-size: 12px;
+}
+.el-input__inner {
+  background-color: #fff;
+  background-image: none;
+  border-radius: 4px;
+  border: 1px solid #dcdfe6;
+  box-sizing: border-box;
+  color: #606266;
+  display: inline-block;
+  font-size: inherit;
+  height: 40px;
+  line-height: 40px;
+  outline: none;
+  padding: 0 15px;
+  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  width: 100%;
+}
+.el-input--mini .el-input__inner {
+  height: 28px;
+  line-height: 28px;
+}
+.el-button {
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  transition: 0.1s;
+  font-weight: 500;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+.el-button--mini {
+  padding: 7px 15px;
+  font-size: 12px;
+  border-radius: 3px;
+}
+.el-button--text {
+  border-color: transparent;
+  color: #409eff;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+.el-button + .el-button {
+  margin-left: 10px;
 }
 </style>
