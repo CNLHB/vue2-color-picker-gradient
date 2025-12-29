@@ -8,18 +8,16 @@
         ><span class="el-color-picker__icon el-icon-arrow-down"></span>
       </div>
     </div>
-    <div v-show="showSelectColor" id="colorPickerBox" ref="refBox" class="color_picker_wrapper">
+    <div
+      v-show="showSelectColor"
+      id="colorPickerBox"
+      ref="refBox"
+      :class="['color_picker_wrapper', popperClass]"
+    >
       <div class="color_picker_box" @mousedown.stop>
-        <div
-          class="color_hd"
-          :class="!(showClose || titleConfig.show) && !titleConfig.text ? 'color_hd_0' : ''"
-        >
-          <div v-if="type === gradType" class="gcolor">
-            <div v-if="titleConfig.show !== false" class="title">
-              <span :style="titleConfig.style || {}">{{ titleConfig.text }}</span>
-              <span v-if="showClose" class="close_box" @click="handleClosePicker">x</span>
-            </div>
-            <div v-if="!disabledColorDeg" class="gcolor_deg">
+        <div v-if="mode === 'gradient'" class="color_hd">
+          <div class="gcolor">
+            <div v-if="!disableDeg" class="gcolor_deg">
               <div class="gcolor_deg_span">角度</div>
               <Slider v-model="deg" :min="0" :max="360" :show-tooltip="false" />
               <input v-model="deg" class="number_input" />
@@ -49,7 +47,7 @@
             </div>
           </div>
         </div>
-        <div v-if="type === gradType" class="gradient_box">
+        <div v-if="mode === 'gradient'" class="gradient_box">
           <template v-for="(item, index) in colors">
             <SketchColorPicker
               v-if="index === selectIndex"
@@ -70,26 +68,24 @@
             @input="changeColor"
           />
           <div class="el-color-dropdown__btns">
-            <span class="el-color-dropdown__value"
-              ><div class="el-input el-input--mini">
-                <input
-                  v-model="color.hex"
-                  type="text"
-                  autocomplete="off"
-                  class="el-input__inner"
-                /></div></span
-            ><button
+            <span class="el-color-dropdown__value">
+              <div class="el-input el-input--mini">
+                <input v-model="color.hex" type="text" autocomplete="off" class="el-input__inner" />
+              </div>
+            </span>
+            <button
               type="button"
               class="el-button el-color-dropdown__link-btn el-button--text el-button--mini"
               @click="handleClearColor"
             >
-              <span> 清空 </span></button
-            ><button
+              <span>清空</span>
+            </button>
+            <button
               type="button"
               class="el-button el-color-dropdown__btn el-button--default el-button--mini is-plain"
               @click="handleClosePicker"
             >
-              <span> 确定 </span>
+              <span>确定</span>
             </button>
           </div>
         </div>
@@ -100,7 +96,14 @@
 
 <script>
 import ColorScale from 'color-scales';
-import { cloneDeep, findParentElement, keepDecimal } from '../utils/index';
+import {
+  cloneDeep,
+  findParentElement,
+  keepDecimal,
+  parseGradient,
+  parseColor,
+  formatColor
+} from '../utils/index';
 import Slider from 'element-ui/lib/slider';
 import { Sketch } from 'vue-color';
 import 'element-ui/lib/theme-chalk/slider.css';
@@ -119,102 +122,96 @@ export default {
     SketchColorPicker: Sketch,
     Slider
   },
+  model: {
+    prop: 'modelValue',
+    event: 'update:modelValue'
+  },
   props: {
-    value: {
-      type: Boolean,
-      default: true
-    },
-    type: {
+    // v-model 绑定值
+    // 线性模式：支持 hex/rgb/rgba/hsl/hsla 字符串，如 '#409EFF' 或 'rgba(64, 158, 255, 1)'
+    // 渐变模式：CSS gradient 字符串，如 'linear-gradient(90deg, #fff 0%, #000 100%)'
+    modelValue: {
       type: String,
-      default: 'linear'
+      default: '#409EFF'
     },
-    disabledColorDeg: {
+    // 组件模式：'linear' 纯色 | 'gradient' 渐变色
+    mode: {
+      type: String,
+      default: 'linear',
+      validator: (value) => ['linear', 'gradient'].includes(value)
+    },
+    // 是否支持透明度选择
+    showAlpha: {
       type: Boolean,
       default: false
     },
-    pDeg: {
-      type: Number,
-      default: 90
+    // 颜色格式：'hex' | 'rgb' | 'rgba' | 'hsl' | 'hsla'
+    colorFormat: {
+      type: String,
+      default: 'hex',
+      validator: (value) => ['hex', 'rgb', 'rgba', 'hsl', 'hsla'].includes(value)
     },
-    pColor: {
-      type: Object,
-      default() {
-        return {
-          hex: '#194d33',
-          hex8: '#194d33',
-          hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
-          hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
-          rgba: { r: 25, g: 77, b: 51, a: 1 },
-          a: 1,
-          color: 'rgba(0,0,0,1)'
-        };
-      }
-    },
-    pColors: {
+    // 预定义颜色数组
+    predefine: {
       type: Array,
-      default() {
-        return [
-          {
-            color: 'rgba(255, 255, 255, 1)',
-            hex: '#ffffff',
-            rgba: { r: 255, g: 255, b: 255, a: 1 },
-            pst: 100
-          },
-          {
-            color: 'rgba(0, 0, 0, 1)',
-            hex: '#000000',
-            rgba: { r: 0, g: 0, b: 0, a: 1 },
-            pst: 0
-          }
-        ];
-      }
+      default: () => []
     },
-    showClose: {
-      type: Boolean,
-      default: true
+    // 组件尺寸：'large' | 'default' | 'small'
+    size: {
+      type: String,
+      default: 'default',
+      validator: (value) => ['large', 'default', 'small'].includes(value)
     },
-    closeOnClickBody: {
+    // 是否禁用
+    disabled: {
       type: Boolean,
       default: false
     },
-    titleConfig: {
-      type: Object,
-      default() {
-        return {
-          show: true,
-          text: '渐变选择器',
-          style: {}
-        };
-      }
+    // 渐变模式特有：是否禁用角度调节
+    disableDeg: {
+      type: Boolean,
+      default: false
+    },
+    // 下拉框的类名
+    popperClass: {
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
+      // 当前颜色对象（线性模式）
       color: {
-        hex: '#194d33',
-        hex8: '#194d33',
-        hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
-        hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
-        rgba: { r: 25, g: 77, b: 51, a: 1 },
-        a: 1,
-        color: 'rgba(0,0,0,1)'
+        hex: '#409EFF',
+        rgba: { r: 64, g: 158, b: 255, a: 1 },
+        color: 'rgba(64, 158, 255, 1)'
       },
-      deg: 0,
-      colors: [],
+      // 渐变角度
+      deg: 90,
+      // 渐变色点数组
+      colors: [
+        {
+          color: 'rgba(255, 255, 255, 1)',
+          hex: '#ffffff',
+          rgba: { r: 255, g: 255, b: 255, a: 1 },
+          pst: 0
+        },
+        { color: 'rgba(0, 0, 0, 1)', hex: '#000000', rgba: { r: 0, g: 0, b: 0, a: 1 }, pst: 100 }
+      ],
+      // 当前选中的渐变色点索引
       selectIndex: 0,
+      // 拖拽相关状态
       startMovePst: 0,
       mouseStartPst: { x: 0, y: 0 },
-      movePst: {
-        x: 0,
-        y: 0
-      },
+      movePst: { x: 0, y: 0 },
       pageX: 0,
       pageY: 0,
-      gradType: 'gradient',
+      // 控制面板显示/隐藏
       showSelectColor: false
     };
   },
   computed: {
+    // 渐变条背景样式
     barStyle() {
       if (!this.colors) {
         return '';
@@ -224,52 +221,52 @@ export default {
         .map((item) => {
           return `${item.color} ${keepDecimal(String(item.pst) || '', 5)}%`;
         });
-      return `linear-gradient(${this.deg}deg, ${colors.join(',')});`;
+      return `linear-gradient(${this.deg}deg, ${colors.join(',')})`;
     },
+    // 触发按钮显示的颜色
     selectColor() {
-      if (this.type === 'linear') {
+      if (this.mode === 'linear') {
         return `color: #FFF; background-color:${this.color.color};`;
       } else {
         return `background:${this.barStyle}`;
       }
+    },
+    // 计算当前颜色值（用于 v-model）
+    currentColorValue() {
+      if (this.mode === 'linear') {
+        return formatColor(this.color.rgba, this.colorFormat);
+      } else {
+        return this.barStyle;
+      }
     }
   },
   watch: {
-    value: {
-      handler(visible) {
-        if (!visible) {
-          this.unbindEvents();
-          this.unbindEventsDoc();
+    // 监听 modelValue 变化，解析并更新内部状态
+    modelValue: {
+      handler(newValue) {
+        if (this.mode === 'linear') {
+          const colorObj = parseColor(newValue);
+          this.color = colorObj;
         } else {
-          this.bindEvents();
+          const { deg, colors } = parseGradient(newValue);
+          this.deg = deg;
+          this.colors = colors;
+          if (this.selectIndex >= colors.length) {
+            this.selectIndex = colors.length - 1;
+          }
         }
       },
-      deep: true
+      immediate: true
     },
+    // 监听渐变样式变化
     barStyle: {
       handler(barStyle) {
-        if (this.type === 'linear') return;
-        this.emitColorChange({
-          style: barStyle
-        });
+        if (this.mode === 'linear') return;
+        this.emitUpdate(barStyle);
       },
       deep: true
     },
-    pColor: {
-      handler(pColor) {
-        this.color = cloneDeep(pColor);
-      },
-      deep: true
-    },
-    pColors: {
-      handler(pColors) {
-        if (this.selectIndex >= pColors.length) {
-          this.selectIndex = pColors.length - 1;
-        }
-        this.colors = cloneDeep(pColors);
-      },
-      deep: true
-    },
+    // 监听角度变化
     deg: {
       handler(newDeg) {
         const deg = Number(parseInt(newDeg)) || 0;
@@ -284,58 +281,39 @@ export default {
     }
   },
   created() {
-    this.deg = this.pDeg;
-    this.colors = this.pColors;
-    if (typeof this.pColor === 'string') {
-      this.pColor.indexOf('#') !== -1
-        ? (this.color.hex = this.pColor)
-        : (this.color.color = this.pColor);
-    } else {
-      this.color = this.pColor;
-    }
-    if (this.pColors.length < 2) {
-      this.warn('The pColors default length cannot be less than 2');
-    }
+    // 初始化颜色值由 modelValue watcher 处理
   },
   mounted() {
-    this.initColors();
-    this.value && this.bindEvents();
+    this.bindEvents();
   },
   unmounted() {
     this.unbindEvents();
     this.unbindEventsDoc();
   },
   methods: {
-    initColors() {
-      // 初始化颜色值
-      if (this.type === this.gradType) {
-        const renderList = cloneDeep(this.colors).sort((a, b) => a.pst - b.pst);
-        this.selectIndex = this.colors.findIndex((item) => item.pst === renderList[0].pst);
-        this.$nextTick(() => {
-          this.emitColorChange({
-            style: this.barStyle
-          });
-        });
-      } else {
-        this.emitColorChange({
-          color: cloneDeep(this.color)
-        });
-      }
+    // 发送 v-model 更新和事件
+    emitUpdate(value) {
+      this.$emit('update:modelValue', value);
+      this.$emit('input', value); // 兼容 Vue 2.x v-model
+    },
+    // 发送 change 事件（确认后触发）
+    emitChange(value) {
+      this.$emit('change', value);
+    },
+    // 发送 active-change 事件（实时触发）
+    emitActiveChange(value) {
+      this.$emit('active-change', value);
     },
     bindEvents() {
-      this.type === this.gradType && window.addEventListener('keyup', this.handleKeyup);
-      if (this.closeOnClickBody) {
-        window.addEventListener('mousedown', this.handleClosePicker);
-      }
+      this.mode === 'gradient' && window.addEventListener('keyup', this.handleKeyup);
     },
     bindEventsDoc(useCapture = false) {
       doc.addEventListener('mousemove', this.handleEleMouseMove, useCapture);
       doc.addEventListener('mouseup', this.handleEleMouseUp, useCapture);
     },
     unbindEvents() {
-      this.type === this.gradType && window.removeEventListener('keyup', this.handleKeyup);
+      this.mode === 'gradient' && window.removeEventListener('keyup', this.handleKeyup);
       this.unbindEventsDoc();
-      this.closeOnClickBody && window.removeEventListener('mousedown', this.handleClosePicker);
     },
     unbindEventsDoc(useCapture = false) {
       doc.removeEventListener('mousemove', this.handleEleMouseMove, useCapture);
@@ -362,31 +340,21 @@ export default {
     },
     handleClosePicker() {
       this.showSelectColor = false;
-      this.$emit('input', false);
-      this.$emit('onClose');
+      this.$emit('visible-change', false);
       this.removeEventListener();
       this.unbindEvents();
       this.unbindEventsDoc();
+      // 发送 change 事件（确认颜色）
+      this.emitChange(this.currentColorValue);
     },
     handleClearColor() {
+      const clearValue =
+        this.mode === 'linear' ? '' : 'linear-gradient(90deg, transparent 0%, transparent 100%)';
+      this.emitUpdate(clearValue);
+      this.emitChange(clearValue);
       this.handleClosePicker();
-      this.changeColor({
-        colors: [],
-        style: {},
-        deg: 0,
-        color: '',
-        rgba: {
-          r: 0,
-          g: 0,
-          b: 0,
-          a: 1
-        },
-        hex: ''
-      });
     },
     handleKeyup(e) {
-      console.log('keyup');
-
       if ([8, 46].includes(e.keyCode)) {
         this.deleteColorPot();
       }
@@ -395,9 +363,8 @@ export default {
       // 渐变色至少有两点
       if (this.colors.length === 2) return;
       this.colors.splice(this.selectIndex, 1);
-
-      // 删完滑块需要重新渲染
-      this.initColors();
+      // 选中前一个色点
+      this.selectIndex = Math.max(0, this.selectIndex - 1);
     },
     handlePotBar(e) {
       const barBounding = this.$refs.refColorBar.getBoundingClientRect();
@@ -457,32 +424,22 @@ export default {
     changeColor(color) {
       const rgba = color.rgba;
       const hex = color.hex;
-      if (this.type === 'linear') {
+      if (this.mode === 'linear') {
         const colorValue = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`;
         this.color = {
           rgba,
           hex,
           color: colorValue
         };
-        this.emitColorChange({
-          color: cloneDeep(this.color)
-        });
+        // 实时更新 v-model
+        const formattedColor = formatColor(rgba, this.colorFormat);
+        this.emitUpdate(formattedColor);
+        this.emitActiveChange(formattedColor);
       } else {
         this.handleGradientColorChange(color);
+        // 渐变模式实时更新
+        this.emitActiveChange(this.barStyle);
       }
-    },
-    emitColorChange({
-      style,
-      colors = cloneDeep(this.colors),
-      color = cloneDeep(this.color),
-      deg = this.deg
-    }) {
-      this.$emit('changeColor', {
-        style,
-        colors,
-        color,
-        deg
-      });
     },
     handleGradientColorChange(color) {
       const rgba = color.rgba;
@@ -494,13 +451,10 @@ export default {
       if (this.selectIndex === index) return;
       this.selectIndex = index;
     },
-    warn(msg) {
-      this.$nextTick(() => {
-        console.error(msg);
-      });
-    },
     handleClickPicker() {
+      if (this.disabled) return;
       this.showSelectColor = !this.showSelectColor;
+      this.$emit('visible-change', this.showSelectColor);
       if (this.showSelectColor) {
         setTimeout(() => {
           this.addEventListener();
@@ -508,6 +462,7 @@ export default {
         }, 0);
       } else {
         this.removeEventListener();
+        this.unbindEvents();
       }
     },
     handleEvent(event) {
@@ -528,8 +483,7 @@ export default {
     },
     removeEventListener() {
       window.removeEventListener('click', this.handleEvent);
-    },
-    findEle() {}
+    }
   }
 };
 </script>

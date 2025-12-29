@@ -1,36 +1,77 @@
 <template>
   <div id="app">
-    <div class="color_poick">
-      <div class="select">
-        linear
-        <ColorPicker
-          type="linear"
-          :p-deg="90"
-          :p-color="pColor"
-          :p-colors="pColors"
-          :show-close="true"
-          :close-on-click-body="false"
-          @changeColor="changeColor"
-          @onClose="onClosePicker"
-        />
-      </div>
-      <div>
-        gradient
-        <ColorPicker
-          type="gradient"
-          :p-deg="90"
-          :p-color="pColor"
-          :p-colors="pColors"
-          :show-close="true"
-          :close-on-click-body="false"
-          @changeColor="changeColor1"
-          @onClose="onClosePicker1"
-        />
+    <h2>Element-Plus 风格颜色选择器</h2>
+
+    <div class="demo-section">
+      <h3>线性颜色选择器 (Linear Color Picker)</h3>
+      <div class="color-pickers">
+        <div class="picker-item">
+          <label>基础用法 (Hex)</label>
+          <ColorPicker v-model="color1" @change="handleChange1" />
+          <div class="preview-box" :style="{ background: color1 }"></div>
+          <code>v-model: {{ color1 }}</code>
+        </div>
+
+        <div class="picker-item">
+          <label>带透明度 (RGBA)</label>
+          <ColorPicker
+            v-model="color2"
+            show-alpha
+            color-format="rgba"
+            @change="handleChange2"
+            @active-change="handleActiveChange2"
+          />
+          <div class="preview-box" :style="{ background: color2 }"></div>
+          <code>v-model: {{ color2 }}</code>
+        </div>
+
+        <div class="picker-item">
+          <label>HSL 格式</label>
+          <ColorPicker v-model="color3" color-format="hsl" @change="handleChange3" />
+          <div class="preview-box" :style="{ background: color3 }"></div>
+          <code>v-model: {{ color3 }}</code>
+        </div>
       </div>
     </div>
-    <div style="display: flex">
-      <div class="box_xxx" :style="style"></div>
-      <div class="box_xxx box1" :style="style1"></div>
+
+    <div class="demo-section">
+      <h3>渐变颜色选择器 (Gradient Color Picker)</h3>
+      <div class="color-pickers">
+        <div class="picker-item">
+          <label>基础渐变</label>
+          <ColorPicker v-model="gradient1" mode="gradient" @change="handleGradientChange1" />
+          <div class="preview-box gradient-box" :style="{ background: gradient1 }"></div>
+          <code class="gradient-code">{{ gradient1 }}</code>
+        </div>
+
+        <div class="picker-item">
+          <label>禁用角度调节</label>
+          <ColorPicker
+            v-model="gradient2"
+            mode="gradient"
+            disable-deg
+            @change="handleGradientChange2"
+          />
+          <div class="preview-box gradient-box" :style="{ background: gradient2 }"></div>
+          <code class="gradient-code">{{ gradient2 }}</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h3>组件尺寸 (Size)</h3>
+      <div class="color-pickers size-demo">
+        <ColorPicker v-model="color1" size="large" />
+        <ColorPicker v-model="color1" size="default" />
+        <ColorPicker v-model="color1" size="small" />
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h3>禁用状态 (Disabled)</h3>
+      <div class="color-pickers">
+        <ColorPicker v-model="color1" disabled />
+      </div>
     </div>
   </div>
 </template>
@@ -45,50 +86,35 @@ export default {
   },
   data() {
     return {
-      style: '',
-      style1: '',
-      titleConfig: {
-        show: true, //控制顶部文字 关闭按钮 显隐
-        text: '颜色选择器' //顶部文字
-      },
-      pDeg: 60,
-      pColor: {
-        hex: '#194d33',
-        hex8: '#194d33',
-        hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
-        hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
-        rgba: { r: 25, g: 77, b: 51, a: 1 },
-        a: 1,
-        color: 'rgba(0,0,0,1)'
-      },
-      pColors: [
-        {
-          color: 'rgba(255, 255, 255, 1)',
-          hex: '#ffffff',
-          rgba: { r: 255, g: 255, b: 255, a: 1 },
-          pst: 100
-        },
-        {
-          color: 'rgba(0, 0, 0, 1)',
-          hex: '#000000',
-          rgba: { r: 0, g: 0, b: 0, a: 1 },
-          pst: 0
-        }
-      ]
+      // 线性颜色
+      color1: '#409EFF',
+      color2: 'rgba(64, 158, 255, 0.8)',
+      color3: 'hsl(210, 100%, 62%)',
+
+      // 渐变颜色
+      gradient1: 'linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 1) 100%)',
+      gradient2: 'linear-gradient(180deg, rgba(255, 0, 0, 1) 0%, rgba(0, 0, 255, 1) 100%)'
     };
   },
-  watch: {},
   methods: {
-    changeColor({ style, colors, deg, color }) {
-      console.log(style, colors, deg, color);
-      this.style = `background: ${color.color}`;
+    handleChange1(value) {
+      console.log('Color 1 changed:', value);
     },
-    onClosePicker() {},
-    changeColor1({ style, colors, deg, color }) {
-      console.log(style, colors, deg, color);
-      this.style1 = `background: ${style}`;
+    handleChange2(value) {
+      console.log('Color 2 changed:', value);
     },
-    onClosePicker1() {}
+    handleActiveChange2(value) {
+      console.log('Color 2 active change:', value);
+    },
+    handleChange3(value) {
+      console.log('Color 3 changed:', value);
+    },
+    handleGradientChange1(value) {
+      console.log('Gradient 1 changed:', value);
+    },
+    handleGradientChange2(value) {
+      console.log('Gradient 2 changed:', value);
+    }
   }
 };
 </script>
@@ -98,25 +124,79 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  color: #2c3e50;
-  margin: 60px 50px;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.select {
-  width: 150px;
-  text-align: left;
+
+h2 {
+  color: #409eff;
+  border-bottom: 2px solid #409eff;
+  padding-bottom: 10px;
+  margin-bottom: 30px;
 }
-.color_poick {
+
+h3 {
+  color: #606266;
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.demo-section {
+  margin-bottom: 50px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.color-pickers {
   display: flex;
-  justify-content: space-between;
-  width: 590px;
+  gap: 30px;
+  flex-wrap: wrap;
 }
-.box_xxx {
+
+.picker-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  label {
+    font-size: 14px;
+    color: #606266;
+    font-weight: 500;
+  }
+
+  code {
+    background: #f4f4f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #606266;
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+  }
+
+  .gradient-code {
+    max-width: 300px;
+  }
+}
+
+.preview-box {
+  width: 150px;
+  height: 100px;
+  border-radius: 4px;
+  border: 1px solid #dcdfe6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-box {
   width: 300px;
-  height: 300px;
 }
-.box1 {
-  margin-left: 50px;
+
+.size-demo {
+  align-items: center;
+  gap: 20px;
 }
 </style>
