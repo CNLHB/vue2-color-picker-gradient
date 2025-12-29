@@ -20,7 +20,7 @@
 - 💪 TypeScript 友好
 - 📱 响应式设计
 
-## [Live Demo](https://cnlhb.github.io/vue2-color-picker-gradient/demo/index.html)
+## [Live Demo](https://cnlhb.github.io/vue2-color-picker-gradient/)
 
 ## 📦 安装
 
