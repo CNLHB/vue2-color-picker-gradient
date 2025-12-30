@@ -27,15 +27,7 @@ export function parseGradient(gradient) {
   if (!gradient || typeof gradient !== 'string') {
     return {
       deg: 90,
-      colors: [
-        {
-          color: 'rgba(255, 255, 255, 1)',
-          hex: '#ffffff',
-          rgba: { r: 255, g: 255, b: 255, a: 1 },
-          pst: 0
-        },
-        { color: 'rgba(0, 0, 0, 1)', hex: '#000000', rgba: { r: 0, g: 0, b: 0, a: 1 }, pst: 100 }
-      ]
+      colors: []
     };
   }
 
@@ -56,38 +48,26 @@ export function parseGradient(gradient) {
     });
   }
 
-  if (colors.length < 2) {
-    colors.push(
-      {
-        color: 'rgba(255, 255, 255, 1)',
-        hex: '#ffffff',
-        rgba: { r: 255, g: 255, b: 255, a: 1 },
-        pst: 0
-      },
-      { color: 'rgba(0, 0, 0, 1)', hex: '#000000', rgba: { r: 0, g: 0, b: 0, a: 1 }, pst: 100 }
-    );
-  }
-
   return { deg, colors };
 }
 
 /**
  * 解析颜色字符串为标准对象
- * @param {string} colorStr - 颜色字符串 '#409EFF' 或 'rgba(64, 158, 255, 1)'
+ * @param {string} colorStr - 颜色字符串 '#409EFF' 或 'rgba(64, 158, 255, 1)' 或 'hsl(210, 100%, 62%)'
  * @returns {Object} - { color, hex, rgba }
  */
 export function parseColor(colorStr) {
   if (!colorStr) {
     return {
-      color: 'rgba(64, 158, 255, 1)',
-      hex: '#409EFF',
-      rgba: { r: 64, g: 158, b: 255, a: 1 }
+      color: '',
+      hex: '',
+      rgba: { r: 0, g: 0, b: 0, a: 0 }
     };
   }
 
-  let r,
-    g,
-    b,
+  let r = 0,
+    g = 0,
+    b = 0,
     a = 1;
 
   if (colorStr.startsWith('#')) {
@@ -114,6 +94,40 @@ export function parseColor(colorStr) {
       b = parseInt(match[3]);
       a = match[4] ? parseFloat(match[4]) : 1;
     }
+  } else if (colorStr.startsWith('hsl')) {
+    // 解析 HSL/HSLA 格式
+    const match = colorStr.match(/hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*([\d.]+))?\)/);
+    if (match) {
+      const h = parseInt(match[1]) / 360;
+      const s = parseInt(match[2]) / 100;
+      const l = parseInt(match[3]) / 100;
+      a = match[4] ? parseFloat(match[4]) : 1;
+
+      // HSL 转 RGB
+      let rNorm, gNorm, bNorm;
+      if (s === 0) {
+        rNorm = gNorm = bNorm = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+        };
+
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        rNorm = hue2rgb(p, q, h + 1 / 3);
+        gNorm = hue2rgb(p, q, h);
+        bNorm = hue2rgb(p, q, h - 1 / 3);
+      }
+
+      r = Math.round(rNorm * 255);
+      g = Math.round(gNorm * 255);
+      b = Math.round(bNorm * 255);
+    }
   }
 
   const hexValue = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
@@ -133,36 +147,41 @@ export function parseColor(colorStr) {
 export function formatColor(rgba, format = 'hex') {
   const { r, g, b, a } = rgba;
 
+  // 处理无效值，确保 r, g, b 都是有效数字
+  const validR = isNaN(r) ? 0 : r;
+  const validG = isNaN(g) ? 0 : g;
+  const validB = isNaN(b) ? 0 : b;
+  const validA = isNaN(a) ? 1 : a;
+
   if (format === 'hex') {
-    if (a < 1) {
-      const alpha = Math.round(a * 255)
+    if (validA < 1) {
+      const alpha = Math.round(validA * 255)
         .toString(16)
         .padStart(2, '0');
-      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}${alpha}`;
+      return `#${((1 << 24) + (validR << 16) + (validG << 8) + validB).toString(16).slice(1)}${alpha}`;
     }
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    return `#${((1 << 24) + (validR << 16) + (validG << 8) + validB).toString(16).slice(1)}`;
   }
 
   if (format === 'rgb') {
-    return `rgb(${r}, ${g}, ${b})`;
+    return `rgb(${validR}, ${validG}, ${validB})`;
   }
 
   if (format === 'rgba') {
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
+    return `rgba(${validR}, ${validG}, ${validB}, ${validA})`;
   }
 
   if (format === 'hsl' || format === 'hsla') {
-    const rNorm = r / 255;
-    const gNorm = g / 255;
-    const bNorm = b / 255;
+    const rNorm = validR / 255;
+    const gNorm = validG / 255;
+    const bNorm = validB / 255;
     const max = Math.max(rNorm, gNorm, bNorm);
     const min = Math.min(rNorm, gNorm, bNorm);
-    let h, s;
+    let h = 0,
+      s = 0;
     const l = (max + min) / 2;
 
-    if (max === min) {
-      h = s = 0;
-    } else {
+    if (max !== min) {
       const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
@@ -183,12 +202,12 @@ export function formatColor(rgba, format = 'hex') {
     const lPercent = Math.round(l * 100);
 
     if (format === 'hsla') {
-      return `hsla(${hDeg}, ${sPercent}%, ${lPercent}%, ${a})`;
+      return `hsla(${hDeg}, ${sPercent}%, ${lPercent}%, ${validA})`;
     }
     return `hsl(${hDeg}, ${sPercent}%, ${lPercent}%)`;
   }
 
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
+  return `rgba(${validR}, ${validG}, ${validB}, ${validA})`;
 }
 export function keepDecimal(numStr, num = 2) {
   const reg = new RegExp(`^\\d+(?:\\.\\d{0,${num}})?`, 'g');

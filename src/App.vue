@@ -121,7 +121,7 @@ export default {
   data() {
     return {
       // 统一颜色（可切换模式）
-      unifiedColor: '#409EFF',
+      unifiedColor: '',
       currentMode: 'linear',
 
       // 线性颜色

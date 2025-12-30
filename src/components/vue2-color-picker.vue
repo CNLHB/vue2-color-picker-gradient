@@ -152,7 +152,7 @@ export default {
     // 渐变模式：CSS gradient 字符串，如 'linear-gradient(90deg, #fff 0%, #000 100%)'
     modelValue: {
       type: String,
-      default: '#409EFF'
+      default: ''
     },
     // 组件默认模式：'linear' 纯色 | 'gradient' 渐变色
     mode: {
@@ -209,22 +209,14 @@ export default {
       currentMode: this.mode,
       // 当前颜色对象（线性模式）
       color: {
-        hex: '#409EFF',
-        rgba: { r: 64, g: 158, b: 255, a: 1 },
-        color: 'rgba(64, 158, 255, 1)'
+        hex: '',
+        rgba: { r: 0, g: 0, b: 0, a: 0 },
+        color: ''
       },
       // 渐变角度
       deg: 90,
       // 渐变色点数组
-      colors: [
-        {
-          color: 'rgba(255, 255, 255, 1)',
-          hex: '#ffffff',
-          rgba: { r: 255, g: 255, b: 255, a: 1 },
-          pst: 0
-        },
-        { color: 'rgba(0, 0, 0, 1)', hex: '#000000', rgba: { r: 0, g: 0, b: 0, a: 1 }, pst: 100 }
-      ],
+      colors: [],
       // 当前选中的渐变色点索引
       selectIndex: 0,
       // 拖拽相关状态
@@ -309,6 +301,23 @@ export default {
   },
   created() {
     // 初始化颜色值由 modelValue watcher 处理
+    // 如果是渐变模式且没有传入值，设置默认渐变
+    if (this.currentMode === 'gradient' && !this.modelValue) {
+      this.colors = [
+        {
+          color: 'rgba(255, 255, 255, 1)',
+          hex: '#ffffff',
+          rgba: { r: 255, g: 255, b: 255, a: 1 },
+          pst: 0
+        },
+        {
+          color: 'rgba(0, 0, 0, 1)',
+          hex: '#000000',
+          rgba: { r: 0, g: 0, b: 0, a: 1 },
+          pst: 100
+        }
+      ];
+    }
   },
   mounted() {
     this.bindEvents();
@@ -329,6 +338,23 @@ export default {
         this.emitUpdate(linearValue);
         this.emitActiveChange(linearValue);
       } else {
+        // 切换到渐变模式时，如果没有颜色点，设置默认值
+        if (this.colors.length === 0) {
+          this.colors = [
+            {
+              color: 'rgba(255, 255, 255, 1)',
+              hex: '#ffffff',
+              rgba: { r: 255, g: 255, b: 255, a: 1 },
+              pst: 0
+            },
+            {
+              color: 'rgba(0, 0, 0, 1)',
+              hex: '#000000',
+              rgba: { r: 0, g: 0, b: 0, a: 1 },
+              pst: 100
+            }
+          ];
+        }
         this.emitUpdate(this.barStyle);
         this.emitActiveChange(this.barStyle);
       }
