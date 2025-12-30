@@ -81,6 +81,52 @@ export default {
 </script>
 ```
 
+### 模式切换
+
+组件内置了纯色/渐变模式切换功能，用户可以在选择器面板内自由切换：
+
+```vue
+<template>
+  <ColorPicker
+    v-model="color"
+    @change="handleChange"
+    @mode-change="handleModeChange"
+  />
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      color: '#409EFF'
+    }
+  },
+  methods: {
+    handleChange(value) {
+      console.log('颜色改变:', value)
+    },
+    handleModeChange(mode) {
+      console.log('模式切换为:', mode) // 'linear' 或 'gradient'
+    }
+  }
+}
+</script>
+```
+
+### 禁用模式切换
+
+如果你希望固定为某个模式，可以使用 `disable-mode-switch` 属性：
+
+```vue
+<template>
+  <!-- 固定为纯色模式 -->
+  <ColorPicker v-model="color" mode="linear" disable-mode-switch />
+
+  <!-- 固定为渐变模式 -->
+  <ColorPicker v-model="gradient" mode="gradient" disable-mode-switch />
+</template>
+```
+
 ### 带透明度
 
 ```vue
@@ -150,7 +196,8 @@ export default {
 | 参数 | 说明 | 类型 | 可选值 | 默认值 |
 | --- | --- | --- | --- | --- |
 | modelValue / v-model | 绑定值 | string | — | '#409EFF' |
-| mode | 组件模式 | string | linear / gradient | linear |
+| mode | 组件默认模式 | string | linear / gradient | linear |
+| disable-mode-switch | 是否禁用内部模式切换按钮 | boolean | — | false |
 | show-alpha | 是否支持透明度选择 | boolean | — | false |
 | color-format | 颜色格式 | string | hex / rgb / rgba / hsl / hsla | hex |
 | predefine | 预定义颜色 | array | — | [] |
@@ -167,6 +214,7 @@ export default {
 | change | 颜色值改变时触发（确认后） | (value: string) |
 | active-change | 实时颜色改变（拖动时） | (value: string) |
 | visible-change | 面板显示/隐藏时触发 | (visible: boolean) |
+| mode-change | 模式切换时触发 | (mode: 'linear' \| 'gradient') |
 
 ### 颜色值格式
 

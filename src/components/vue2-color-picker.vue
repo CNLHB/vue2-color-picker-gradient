@@ -4,8 +4,12 @@
       <!---->
       <div class="el-color-picker__trigger" id="colorBox" @click="handleClickPicker">
         <span class="el-color-picker__color"
-          ><span class="el-color-picker__color-inner" :style="selectColor"> &times; </span></span
-        ><span class="el-color-picker__icon el-icon-arrow-down"></span>
+          ><span class="el-color-picker__color-inner" :style="selectColor">
+            <span class="rate">
+              <img src="./icons8-arrow-24.png" alt="" />
+            </span> </span
+        ></span>
+        <!-- <span class="el-color-picker__icon el-icon-arrow-down"></span> -->
       </div>
     </div>
     <div
@@ -15,7 +19,23 @@
       :class="['color_picker_wrapper', popperClass]"
     >
       <div class="color_picker_box" @mousedown.stop>
-        <div v-if="mode === 'gradient'" class="color_hd">
+        <!-- 模式切换按钮 -->
+        <div v-if="!disableModeSwitch" class="mode-switch">
+          <button
+            :class="['mode-btn', { active: currentMode === 'linear' }]"
+            @click="switchMode('linear')"
+          >
+            纯色
+          </button>
+          <button
+            :class="['mode-btn', { active: currentMode === 'gradient' }]"
+            @click="switchMode('gradient')"
+          >
+            渐变
+          </button>
+        </div>
+
+        <div v-if="currentMode === 'gradient'" class="color_hd">
           <div class="gcolor">
             <div v-if="!disableDeg" class="gcolor_deg">
               <div class="gcolor_deg_span">角度</div>
@@ -47,7 +67,7 @@
             </div>
           </div>
         </div>
-        <div v-if="mode === 'gradient'" class="gradient_box">
+        <div v-if="currentMode === 'gradient'" class="gradient_box">
           <template v-for="(item, index) in colors">
             <SketchColorPicker
               v-if="index === selectIndex"
@@ -134,11 +154,16 @@ export default {
       type: String,
       default: '#409EFF'
     },
-    // 组件模式：'linear' 纯色 | 'gradient' 渐变色
+    // 组件默认模式：'linear' 纯色 | 'gradient' 渐变色
     mode: {
       type: String,
       default: 'linear',
       validator: (value) => ['linear', 'gradient'].includes(value)
+    },
+    // 是否禁用模式切换按钮
+    disableModeSwitch: {
+      type: Boolean,
+      default: false
     },
     // 是否支持透明度选择
     showAlpha: {
@@ -180,6 +205,8 @@ export default {
   },
   data() {
     return {
+      // 当前模式（内部状态）
+      currentMode: this.mode,
       // 当前颜色对象（线性模式）
       color: {
         hex: '#409EFF',
@@ -225,7 +252,7 @@ export default {
     },
     // 触发按钮显示的颜色
     selectColor() {
-      if (this.mode === 'linear') {
+      if (this.currentMode === 'linear') {
         return `color: #FFF; background-color:${this.color.color};`;
       } else {
         return `background:${this.barStyle}`;
@@ -233,7 +260,7 @@ export default {
     },
     // 计算当前颜色值（用于 v-model）
     currentColorValue() {
-      if (this.mode === 'linear') {
+      if (this.currentMode === 'linear') {
         return formatColor(this.color.rgba, this.colorFormat);
       } else {
         return this.barStyle;
@@ -244,7 +271,7 @@ export default {
     // 监听 modelValue 变化，解析并更新内部状态
     modelValue: {
       handler(newValue) {
-        if (this.mode === 'linear') {
+        if (this.currentMode === 'linear') {
           const colorObj = parseColor(newValue);
           this.color = colorObj;
         } else {
@@ -261,7 +288,7 @@ export default {
     // 监听渐变样式变化
     barStyle: {
       handler(barStyle) {
-        if (this.mode === 'linear') return;
+        if (this.currentMode === 'linear') return;
         this.emitUpdate(barStyle);
       },
       deep: true
@@ -291,6 +318,24 @@ export default {
     this.unbindEventsDoc();
   },
   methods: {
+    // 切换模式
+    switchMode(mode) {
+      if (this.currentMode === mode) return;
+      this.currentMode = mode;
+
+      // 切换模式时发送对应格式的初始值
+      if (mode === 'linear') {
+        const linearValue = formatColor(this.color.rgba, this.colorFormat);
+        this.emitUpdate(linearValue);
+        this.emitActiveChange(linearValue);
+      } else {
+        this.emitUpdate(this.barStyle);
+        this.emitActiveChange(this.barStyle);
+      }
+
+      // 发送模式切换事件
+      this.$emit('mode-change', mode);
+    },
     // 发送 v-model 更新和事件
     emitUpdate(value) {
       this.$emit('update:modelValue', value);
@@ -305,14 +350,14 @@ export default {
       this.$emit('active-change', value);
     },
     bindEvents() {
-      this.mode === 'gradient' && window.addEventListener('keyup', this.handleKeyup);
+      this.currentMode === 'gradient' && window.addEventListener('keyup', this.handleKeyup);
     },
     bindEventsDoc(useCapture = false) {
       doc.addEventListener('mousemove', this.handleEleMouseMove, useCapture);
       doc.addEventListener('mouseup', this.handleEleMouseUp, useCapture);
     },
     unbindEvents() {
-      this.mode === 'gradient' && window.removeEventListener('keyup', this.handleKeyup);
+      this.currentMode === 'gradient' && window.removeEventListener('keyup', this.handleKeyup);
       this.unbindEventsDoc();
     },
     unbindEventsDoc(useCapture = false) {
@@ -424,7 +469,7 @@ export default {
     changeColor(color) {
       const rgba = color.rgba;
       const hex = color.hex;
-      if (this.mode === 'linear') {
+      if (this.currentMode === 'linear') {
         const colorValue = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`;
         this.color = {
           rgba,
@@ -496,6 +541,7 @@ export default {
   position: absolute;
   top: 100%;
   width: 240px;
+  z-index: 8888;
   .color_picker_box {
     box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.16);
     border-radius: 4px;
@@ -508,6 +554,39 @@ export default {
         border-radius: 0;
         background: #f7f8f9;
         padding: 0;
+      }
+    }
+
+    // 模式切换按钮样式
+    .mode-switch {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 4px;
+      background: #e8e9eb;
+      border-radius: 4px;
+
+      .mode-btn {
+        flex: 1;
+        padding: 6px 12px;
+        font-size: 12px;
+        color: #606266;
+        background: transparent;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.2s;
+        outline: none;
+
+        &:hover {
+          color: #409eff;
+        }
+
+        &.active {
+          color: #fff;
+          background: #409eff;
+          font-weight: 500;
+        }
       }
     }
 
@@ -720,6 +799,16 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.rate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(90deg);
+  > img {
+    width: 24px;
+    height: 24px;
+  }
 }
 // bottom
 .el-color-dropdown__btns {
