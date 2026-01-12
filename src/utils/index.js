@@ -65,10 +65,10 @@ export function parseColor(colorStr) {
     };
   }
 
-  let r = 0,
-    g = 0,
-    b = 0,
-    a = 1;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let a = 1;
 
   if (colorStr.startsWith('#')) {
     const hex = colorStr.replace('#', '');
@@ -177,8 +177,8 @@ export function formatColor(rgba, format = 'hex') {
     const bNorm = validB / 255;
     const max = Math.max(rNorm, gNorm, bNorm);
     const min = Math.min(rNorm, gNorm, bNorm);
-    let h = 0,
-      s = 0;
+    let h = 0;
+    let s = 0;
     const l = (max + min) / 2;
 
     if (max !== min) {
@@ -212,6 +212,22 @@ export function formatColor(rgba, format = 'hex') {
 export function keepDecimal(numStr, num = 2) {
   const reg = new RegExp(`^\\d+(?:\\.\\d{0,${num}})?`, 'g');
   return !numStr.match(reg) ? '' : numStr.match(reg);
+}
+
+/**
+ * 检测颜色值类型
+ * @param {string} value - 颜色值
+ * @returns {string} - 'gradient' | 'linear' | 'empty'
+ */
+export function detectColorType(value) {
+  if (!value || typeof value !== 'string') {
+    return 'empty';
+  }
+  // 检测是否为渐变色
+  if (value.includes('linear-gradient') || value.includes('radial-gradient')) {
+    return 'gradient';
+  }
+  return 'linear';
 }
 // 定义一个函数来向上遍历父元素并判断
 export function findParentElement(element, selector) {

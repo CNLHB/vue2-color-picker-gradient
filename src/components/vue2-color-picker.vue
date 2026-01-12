@@ -22,14 +22,16 @@
         <!-- 模式切换按钮 -->
         <div v-if="!disableModeSwitch" class="mode-switch">
           <button
+            type="button"
             :class="['mode-btn', { active: currentMode === 'linear' }]"
-            @click="switchMode('linear')"
+            @click.prevent="switchMode('linear')"
           >
             纯色
           </button>
           <button
+            type="button"
             :class="['mode-btn', { active: currentMode === 'gradient' }]"
-            @click="switchMode('gradient')"
+            @click.prevent="switchMode('gradient')"
           >
             渐变
           </button>
@@ -122,7 +124,8 @@ import {
   keepDecimal,
   parseGradient,
   parseColor,
-  formatColor
+  formatColor,
+  detectColorType
 } from '../utils/index';
 import Slider from 'element-ui/lib/slider';
 import { Sketch } from 'vue-color';
@@ -204,9 +207,11 @@ export default {
     }
   },
   data() {
+    // 根据 modelValue 自动检测模式，如果有值则优先使用检测的模式
+    const detectedMode = this.modelValue ? detectColorType(this.modelValue) : null;
     return {
       // 当前模式（内部状态）
-      currentMode: this.mode,
+      currentMode: detectedMode || this.mode,
       // 当前颜色对象（线性模式）
       color: {
         hex: '',
@@ -477,7 +482,9 @@ export default {
       this.startMovePst = this.colors[this.selectIndex].pst;
     },
     sliderMove() {
-      const barWidth = this.$refs.refColorBar?.getBoundingClientRect().width;
+      const barWidth = this.$refs.refColorBar
+        ? this.$refs.refColorBar.getBoundingClientRect().width
+        : 0;
       let distRatio = ((this.startMovePst * barWidth) / 100 + this.movePst.x) / barWidth;
       if (distRatio > 1) {
         distRatio = 1;
